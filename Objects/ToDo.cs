@@ -176,5 +176,37 @@ namespace ToDoTask
 
       return foundTask;
     }
+
+    public static List<Task> GetTasks(string searchAuthor)
+    {
+      SqlConnection conn = DB.Connection();
+      conn.Open();
+
+      SqlCommand cmd = new SqlCommand("SELECT * FROM tasks WHERE author = @Author;", conn);
+      SqlParameter authorParameter = new SqlParameter();
+      authorParameter.ParameterName = "@Author";
+      authorParameter.Value = searchAuthor;
+      cmd.Parameters.Add(authorParameter);
+      SqlDataReader rdr = cmd.ExecuteReader();
+
+      List<Task> tasks = new List<Task> {};
+      while(rdr.Read())
+      {
+        int taskId = rdr.GetInt32(0);
+        string taskDescription = rdr.GetString(1);
+        string taskAuthor = rdr.GetString(2);
+        Task newTask = new Task(taskDescription, taskAuthor, taskId);
+        tasks.Add(newTask);
+      }
+      if (rdr != null)
+      {
+        rdr.Close();
+      }
+      if (conn != null)
+      {
+        conn.Close();
+      }
+      return tasks;
+    }
   }
 }
